@@ -29,7 +29,6 @@ public class LocationManager implements LifecycleObserver {
     private final AppCompatActivity mActivity;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LocationRequest mLocationRequest;
-    private LocationCallback mLocationCallback;
     private MutableLiveData<Location> liveData = new MutableLiveData<>();
 
 
@@ -46,17 +45,17 @@ public class LocationManager implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void updateLocation() {
         checkLocationRequestSettings();
-
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                liveData.setValue(locationResult.getLastLocation());
-            }
-        };
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            liveData.setValue(locationResult.getLastLocation());
+        }
+    };
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void stopUpdateLocation() {
         mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
     }
@@ -87,13 +86,6 @@ public class LocationManager implements LifecycleObserver {
     private void startUpdateLocation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (mActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && mActivity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    Activity#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for Activity#requestPermissions for more details.
                 return;
             }
         }
@@ -104,8 +96,8 @@ public class LocationManager implements LifecycleObserver {
     private LocationRequest getLocationRequest() {
         if (mLocationRequest == null) {
             mLocationRequest = LocationRequest.create();
-            mLocationRequest.setInterval(10000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+            mLocationRequest.setInterval(50000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         }
         return mLocationRequest;
     }

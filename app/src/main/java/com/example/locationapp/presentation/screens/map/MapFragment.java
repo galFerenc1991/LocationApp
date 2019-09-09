@@ -62,6 +62,16 @@ public class MapFragment extends Fragment implements MapContract.View, OnMapRead
         mActivity = (AppCompatActivity) context;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        checkLocationPermission();
+
+        mLocationManager = new LocationManager(mActivity);
+        getLifecycle().addObserver(mLocationManager);
+        initLocationLiveData();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -73,16 +83,6 @@ public class MapFragment extends Fragment implements MapContract.View, OnMapRead
         mapFragment.getMapAsync(this);
         getChildFragmentManager().beginTransaction().replace(R.id.map, mapFragment).commit();
         return rootView;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        checkLocationPermission();
-
-        mLocationManager = new LocationManager(mActivity);
-        getLifecycle().addObserver(mLocationManager);
-        initLocationLiveData();
     }
 
     private void initLocationLiveData() {
@@ -151,8 +151,8 @@ public class MapFragment extends Fragment implements MapContract.View, OnMapRead
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         mPresenter.unsubscribe();
     }
 }

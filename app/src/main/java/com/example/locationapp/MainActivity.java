@@ -23,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment = MapFragment_.builder().build();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.flFragmentContent_AD, fragment)
-                .addToBackStack(fragment.getClass().getSimpleName())
+                .add(R.id.flFragmentContent_AD, fragment)
                 .commit();
     }
 }
